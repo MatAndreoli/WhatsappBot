@@ -1,0 +1,3 @@
+{
+  "ignore": ["WebScraper/*.json", "README"]
+}

@@ -1,12 +1,12 @@
 # WhatsappBot
 
-##Docker image
+## Docker image
 ```sh
 docker run --restart=always -d matandreoli/whatsapp-bot
 ```
 Just scan the QRCode in its logs.
 
-##Running local
+## Running local
 ```sh
 ./run_all.sh
 ```

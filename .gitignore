@@ -1,6 +1,5 @@
 node_modules/
 docker-compose.yml
-README.md
 .wwebjs_cache/
 .wwebjs_auth/
 WebScraper/events.json

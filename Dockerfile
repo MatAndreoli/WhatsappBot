@@ -1,19 +1,13 @@
 FROM debian:stable-slim
 
-USER root
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
-RUN echo "fksd"
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     python3-pip \
     git \
-    npm
-
-RUN curl -LO  https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-RUN apt-get install -y ./google-chrome-stable_current_amd64.deb
-RUN rm google-chrome-stable_current_amd64.deb
-RUN echo "Chrome: " && google-chrome --version
+    npm \
+    chromium
 
 ENV NVM_DIR /usr/local/nvm
 ENV NODE_VERSION 18.13.0

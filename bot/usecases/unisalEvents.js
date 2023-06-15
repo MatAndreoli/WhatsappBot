@@ -19,7 +19,7 @@ const sortByDate = (data) => {
 };
 
 const buildEventsMsg = async () => {
-  let msg = '';
+  const msg = [];
   const data = JSON.parse(
     await readFile(path.resolve(__dirname, '../../WebScraper/events.json'), {
       encoding: 'utf8',
@@ -28,28 +28,25 @@ const buildEventsMsg = async () => {
 
   sortByDate(data)
     .slice(0, 10)
-    .forEach((value) => {
-      msg += `Evento: *${value.title}*\nData: ${formatDate(value.date)}\t${
-        value.hour
-      }\nLink: ${value.link}\n\n`;
-    });
+    .forEach((value) => msg.push(`Evento: *${value.title}*\nData: ${formatDate(value.date)}\t${value.hour}\nLink: ${value.link}`));
 
   return msg;
 };
 
-const getUnisalEvents = async (client, from) => {
+const getUnisalEvents = async (client, from, body) => {
   try {
     logger.info('Retrieving Events');
 
-    client.sendMessage(
-      from,
-      'Scraping https://unisal.br/eventos to get the data, it will take a while...'
-    );
+    const [, limit] = body.split(' ');
+
+    client.sendMessage(from, 'Scraping https://unisal.br/eventos to get the data, it will take a while...');
 
     await axios.get('http://localhost:3000/events');
 
     const msg = await buildEventsMsg();
-    client.sendMessage(from, msg);
+    for (let i = 0; i < limit; i++) {
+      client.sendMessage(from, msg[i]);
+    }
   } catch (e) {
     logger.error(`Some error occurred: ${e}`);
     client.sendMessage(from, `Some error occurred: ${e}`);

@@ -16,6 +16,11 @@ class RendDistribution(Item):
     data_com = Field()
 
 
+class LastManagementReport(Item):
+    link = Field()
+    date = Field()
+
+
 class FiisscrapingItem(Item):
     url = Field()
     name = Field()
@@ -31,3 +36,4 @@ class FiisscrapingItem(Item):
     p_vp = Field()
     last_dividend_table = Field()
     rend_distribution = Field()
+    last_management_report = Field()

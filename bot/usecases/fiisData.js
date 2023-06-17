@@ -3,7 +3,7 @@ const axios = require('axios');
 const path = require('path');
 const { readFile } = require('fs/promises');
 
-const boldStr = (str) => str && str.replace(/^/, '*').replace(/$/, '*');
+const boldStr = (str) => (str ? str.replace(/^/, '*').replace(/$/, '*') : '');
 
 const buildEventsMsg = async () => {
   let msg = [];
@@ -13,7 +13,9 @@ const buildEventsMsg = async () => {
   );
 
   JSON.parse(data).forEach((value) => {
-    const rendDistribution = value.rend_distribution || '';
+    const rendDistribution = value.rend_distribution || {};
+    const lastManagementReport = value.last_management_report || {};
+
     let str = `FII: ${boldStr(value.code)}\n`;
     str += `Nome: ${boldStr(value.name)}\n`;
     str += `Tipo: ${boldStr(value.fii_type)}\n`;
@@ -34,6 +36,9 @@ const buildEventsMsg = async () => {
     )}\n`;
     str += `- Pagamento: ${boldStr(rendDistribution.future_pay_day || '')}\n`;
     str += `- Data com: ${boldStr(rendDistribution.data_com || '')}\n`;
+    str += `Último Relatório Gerencial: (${boldStr(
+      lastManagementReport.date || ''
+    )}) ${boldStr(lastManagementReport.link || '')}\n`;
     str += `For more info about this FII, access: ${boldStr(value.url)}`;
 
     msg.push(str);

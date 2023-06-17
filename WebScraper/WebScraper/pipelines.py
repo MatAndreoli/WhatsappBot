@@ -55,3 +55,5 @@ def strip_dict_values(dict):
             dict[key] = re.findall('R\$\s[\d+]+\,\d+', dict[key])[0]
         if key == 'future_pay_day':
             dict[key] = re.findall('(\d+\/\d+\/\d+)+', dict[key])[0]
+        if key == 'date':
+            dict[key] = dict.get(key).split(' ')[-1]

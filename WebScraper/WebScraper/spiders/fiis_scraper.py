@@ -1,7 +1,7 @@
 from scrapy import Spider, Request
 from scrapy.responsetypes import Response
 
-from WebScraper.items import FiisscrapingItem, RendDistribution
+from WebScraper.items import FiisscrapingItem, RendDistribution, LastManagementReport
 
 
 class FiisScraperSpider(Spider):
@@ -39,9 +39,11 @@ class FiisScraperSpider(Spider):
         fii_type = response.meta['fii_type']
 
         fii_item = FiisscrapingItem()
+        rend_distribution = RendDistribution()
+        last_management_report = LastManagementReport()
+
         fii_item['url'] = response.url
         fii_item['fii_type'] = fii_type
-        rend_distribution = RendDistribution()
 
         fii_item['name'] = response.css('.headerTicker__content__name::text').get()
         fii_item['code'] = response.css('.headerTicker__content__title::text').get()
@@ -59,6 +61,13 @@ class FiisScraperSpider(Spider):
         fii_item['last_dividend_yield'] = fii_historic_data.css('div:nth-child(2) p:nth-child(2) b::text').get()
 
         last_rend_distribution = response.css('.communicated .communicated__grid .communicated__grid__rend') or None
+
+        last_management_report_el = response.xpath('//div[contains(@class, "communicated__grid__row")]/a[starts-with(@href, "https://fnet.bmfbovespa.com.br/fnet/publico/exibirDocumento?id=") and contains(text(), "Gerencial")]') or None
+
+        if last_management_report_el is not None:
+            last_management_report['link'] = last_management_report_el[0].css('a::attr(href)').get()
+            last_management_report['date'] = last_management_report_el[0].css('a::text').get()
+            fii_item['last_management_report'] = dict(last_management_report)
 
         if last_rend_distribution is not None:
             rend_distribution['dividend'] = last_rend_distribution[0].css('p::text').get()

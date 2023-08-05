@@ -6,8 +6,7 @@ from WebScraper.items import FiisscrapingItem, RendDistribution, LastManagementR
 
 class FiisScraperSpider(Spider):
     name = "fiis-scraper"
-    allowed_domains = ["fundsexplorer.com.br"]
-    
+
     format_file = 'json'
     custom_settings = {
         'FEEDS':{
@@ -32,10 +31,10 @@ class FiisScraperSpider(Spider):
             type_css = f'.link-tickers-container[onclick="location.href=\'{url}\';"] span::text'
             fii_type = response.css(type_css).get()
 
-            yield response.follow(url, callback=self.test, meta={'fii_type': fii_type})
+            yield response.follow(url, callback=self.getFiiData, meta={'fii_type': fii_type})
 
 
-    def test(self, response: Response):
+    def getFiiData(self, response: Response):
         fii_type = response.meta['fii_type']
 
         fii_item = FiisscrapingItem()
@@ -61,19 +60,35 @@ class FiisScraperSpider(Spider):
         fii_item['last_dividend_yield'] = fii_historic_data.css('div:nth-child(2) p:nth-child(2) b::text').get()
 
         last_rend_distribution = response.css('.communicated .communicated__grid .communicated__grid__rend') or None
-
-        last_management_report_el = response.xpath('//div[contains(@class, "communicated__grid__row")]/a[starts-with(@href, "https://fnet.bmfbovespa.com.br/fnet/publico/exibirDocumento?id=") and contains(text(), "Gerencial")]') or None
-
-        if last_management_report_el is not None:
-            last_management_report['link'] = last_management_report_el[0].css('a::attr(href)').get()
-            last_management_report['date'] = last_management_report_el[0].css('a::text').get()
-            fii_item['last_management_report'] = dict(last_management_report)
-
+        
         if last_rend_distribution is not None:
             rend_distribution['dividend'] = last_rend_distribution[0].css('p::text').get()
             rend_distribution['future_pay_day'] = last_rend_distribution[0].css('p::text').get()
             rend_distribution['income_percentage'] = last_rend_distribution[0].css('ul li:nth-child(3) b::text').get()
             rend_distribution['data_com'] = last_rend_distribution[0].css('ul li:nth-child(1) b::text').get()
             fii_item['rend_distribution'] = dict(rend_distribution)
+
+        last_management_report_el = response.xpath("//div[contains(@class, 'communicated__grid__row') and contains(a/@href, 'https://fnet.bmfbovespa.com.br/fnet/publico/exibirDocumento?id=') and contains(a/text(), 'Gerencial')]") or None
+
+        if last_management_report_el is not None:
+            last_management_report['link'] = last_management_report_el[0].css('a::attr(href)').get()
+            last_management_report['date'] = last_management_report_el[0].css('p::text').get()
+            fii_item['last_management_report'] = dict(last_management_report)
+        else:
+            yield response.follow(f"https://statusinvest.com.br/fiagros/{fii_item['code']}", callback=self.managementReportAbsent, meta={'fii_item': fii_item})
+            return
+
+        yield fii_item
+
+    def managementReportAbsent(self, response: Response):
+        fii_item = response.meta['fii_item']
+        last_management_report = LastManagementReport()
+
+        last_management_report_el = response.xpath("//div[contains(@class, 'align-items-center d-flex flex-wrap justify-between') and contains(div/text(), 'Gerencial')]") or None
+
+        if last_management_report_el is not None:
+            last_management_report['link'] = last_management_report_el[0].css('a::attr(href)').get()
+            last_management_report['date'] = last_management_report_el[0].css('.w-lg-10.fw-700::text').get()
+            fii_item['last_management_report'] = dict(last_management_report)
 
         yield fii_item

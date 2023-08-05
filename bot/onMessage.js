@@ -23,6 +23,6 @@ const onMessage = async (client, message) => {
       client.sendMessage(from, optionsMsg);
       break;
   }
-};  
+};
 
 module.exports = onMessage;

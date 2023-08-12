@@ -31,7 +31,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 COPY package.json .
 COPY package-lock.json .
-RUN npm install
+RUN npm install --production
 
 COPY requirements.txt .
 RUN ${VIRTUAL_ENV}/bin/pip install -r requirements.txt

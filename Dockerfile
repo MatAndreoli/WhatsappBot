@@ -9,17 +9,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     npm \
     chromium
 
-ENV NVM_DIR /usr/local/nvm
-ENV NODE_VERSION 18.13.0
+ENV NVM_DIR=/usr/local/nvm \
+    NODE_VERSION=18.13.0
 RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.2/install.sh | bash
 RUN source $NVM_DIR/nvm.sh \
     && nvm install $NODE_VERSION \
     && nvm alias default $NODE_VERSION \
     && nvm use default
 
-ENV NODE_PATH $NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules
-ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
-
+ENV NODE_PATH=$NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules \
+    PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH \
+    VIRTUAL_ENV=venv
 
 RUN pip install virtualenv --break-system-packages
 ENV VIRTUAL_ENV=venv
@@ -29,8 +29,8 @@ WORKDIR /app
 RUN virtualenv -p python3.11 ${VIRTUAL_ENV}
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-COPY package.json .
-COPY package-lock.json .
+COPY package*.json ./
+
 RUN npm install --production
 
 COPY requirements.txt .

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 fuser -k 3000/tcp
+apt-get install python-pip
 pip install virtualenv
 VIRTUAL_ENV=venv
 

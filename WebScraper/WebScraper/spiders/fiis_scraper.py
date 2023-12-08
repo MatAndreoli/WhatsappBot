@@ -53,9 +53,9 @@ class FiisScraperSpider(Spider):
         fii_item['average_daily'] = fii_data.css('.indicators__box:nth-child(1) p b::text').get()
         fii_item['last_dividend'] = fii_data.css('.indicators__box:nth-child(2) p b::text').get()
         fii_item['dividend_yield'] = fii_data.css('.indicators__box:nth-child(3) p b::text').get()
-        fii_item['net_worth'] = fii_data.css('.indicators__box:nth-child(4) p b::text').get()
+        fii_item['net_worth'] = fii_data.xpath('(//div[@class="indicators__box"])[4]/p/b/small/following-sibling::text()[normalize-space()]').get()
         fii_item['p_vp'] = fii_data.css('.indicators__box:nth-child(7) p b::text').get()
-        
+
         fii_historic_data = response.css('.historic')
         fii_item['last_dividend_yield'] = fii_historic_data.css('div:nth-child(2) p:nth-child(2) b::text').get()
 

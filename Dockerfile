@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     chromium
 
 ENV NVM_DIR=/usr/local/nvm \
-    NODE_VERSION=18.13.0
+    NODE_VERSION=20.12.2
 RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.2/install.sh | bash
 RUN source $NVM_DIR/nvm.sh \
     && nvm install $NODE_VERSION \
